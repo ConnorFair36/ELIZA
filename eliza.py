@@ -1,9 +1,22 @@
 import re
 from queue import PriorityQueue
 
-# stores the keywords along with their rank level, patterns and responce transformations
+username = ""
+
+# stores the keywords along with their rank level, patterns and response transformations
 keywords = {
-    "tired": ([[r"(\w+ )*tired", "Why are you tired?"]], 1)
+    # E
+    "everyone": ([[r"((?:\w+\s)*)everyone ((?:\w+\s)*)", "When you say that, who are you thinking of in particular?"]], 1),
+    "everything": ([[r"((?:\w+\s)*)everything ((?:\w+\s)*)", "When you say that, what are you thinking of in particular?"]], 1),
+    # L
+    "like": ([[r"((?:\w+\s)*)not like ((?:\w+\s*)*)", "Why don't you like @1?"],
+              [r"((?:\w+\s)*)like ((?:\w+\s*)*)", "Why do you like @1?"]], 2),
+    # N
+    "nothing": ([[r"((?:\w+\s)*)nothing ((?:\w+\s)*)", "When you say that, what are you thinking of in particular?"]], 1),
+    # O
+    "one": ([[r"((?:\w+\s)*)no one ((?:\w+\s)*)", "When you say that, who are you thinking of in particular?"]], 1),
+    # T
+    "tired": ([[r"((?:\w+\s)*)tired", "Why are you tired?"]], 1)
 }
 
 # A priority queue that keeps track of all identified and unused keywords with words of higher rank going first
@@ -11,7 +24,22 @@ found_kw = PriorityQueue()
 
 def clean_input(user_input: str) -> str:
     """Cleans the user input text for easier processing."""
-    return user_input.lower()
+    user_input = user_input.lower()
+    # expand all contracted words
+    user_input = user_input.replace("i'm", "i am")
+    user_input = user_input.replace("'re", " are")
+    user_input = user_input.replace("let's", "let us")
+    user_input = user_input.replace("'s", " is")
+    user_input = user_input.replace("'ve", " have")
+    user_input = user_input.replace("'d", " did")
+    user_input = user_input.replace("'ll", " will")
+    user_input = user_input.replace("n't", " not")
+    user_input = user_input.replace("gonna", "going to")
+    user_input = user_input.replace("wanna", "want to")
+    user_input = user_input.replace("y'", "you ")
+    user_input = user_input.replace("'bout", "about")
+    user_input = user_input.replace("'cause", "because")
+    return user_input
 
 def extract_keywords(user_input: str) -> list[str]:
     """Check user input for keywords and return them in the order the are found in."""
@@ -41,16 +69,22 @@ def generate_response(user_input: str) -> str:
         rules = keywords[kw][0]
         for pattern, transformation in rules:
             # check every pattern associated with the keyword
-            if re.match(pattern, user_input) != None:
-                return transform_input(user_input, transformation)
+            pattern_match = re.match(pattern, user_input)
+            if pattern_match != None:
+                return transform_input(pattern_match.groups(), transformation)
         # if there were no matches, try again with the next keyword
         return generate_response(user_input)
     else:
         return default_response()
 
-# TODO Add transform logic
-def transform_input(user_input: str, transformation: str) -> str:
-    return transformation
+def transform_input(pattern_match: tuple, transformation: str) -> str:
+    """Transforms the input message returned by the user"""
+    response = transformation
+    # modifies the response if the transformation requires it 
+    if "@" in response:
+        for i, phrase in enumerate(pattern_match):
+            response = response.replace(f"@{i}", phrase)
+    return response
 
 def clear_queue() -> None:
     """Clears the entire priority queue."""
@@ -67,6 +101,11 @@ def main():
         # end the program if user gives "end" as input
         if user_input == "end":
             break
+        
+        if username == "":
+            username = get_username(user_input)
+            continue
+
         # identify all keywords
         user_kw = extract_keywords(user_input)
         # place keywords into priority queue

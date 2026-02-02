@@ -61,9 +61,30 @@ def get_username() -> str:
     user_input =  re.sub(r"[,.?!]", "", user_input)
     if user_input == "":
         print(f"Thanks {username}!\nHow are you today?")
+    else:
+        print(f"Hello there {username}!")
     return user_input.strip()
 
-    
+def validate_input(user_input: str) -> bool:
+    """Returns true if the user input meets the requirements for their input to be a valid sentence."""
+    # 1. there should be no special characters
+    if re.search(r"[@#$%^&*()_+=\/<>{}`~]", user_input):
+        return False
+    # 2. each input can only contain a max of 30 words
+    all_words = user_input.split(" ")
+    if len(all_words) >= 30:
+        return False
+    # 3. each word should be less than 20 characters long
+    for word in all_words:
+        if len(word) >= 20:
+            return False
+    # 4. every word must contain a vowel
+    for word in all_words:
+        if not re.search("[AaEeIiOoUuYy]", word):
+            return False
+        
+    return True
+
 
 def clean_input(user_input: str) -> str:
     """Cleans the user input text for easier processing."""
@@ -159,6 +180,9 @@ def main():
             quickstart_input = ""
         else: 
             user_input = input()
+        if not validate_input(user_input):
+            print("Please give only a single sentence responses")
+            continue
         user_input = clean_input(user_input)
         # end the program if user gives "end" as input
         if user_input == "end":
@@ -168,7 +192,7 @@ def main():
         # place keywords into priority queue
         update_pq(user_kw)
         # generate a response to the user's input
-        print(found_kw.queue)
+        #print(found_kw.queue)
         print(generate_response(user_input))
         # clear the queue for the next input
         clear_queue()

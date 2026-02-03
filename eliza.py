@@ -23,6 +23,9 @@ keywords = {
     "falling": ([[r"((?:\w+\s)*)you are falling short ((?:\w+\s)*\w+)", "How are you falling short?"]], 0),
     # I
     "i": ([[r"i think i am ((?:\w+\s)*\w+)", "Why do you think I'm @0?"]], 1),
+    "it": ([[r"it gives me a ((?:\w+\s)*\w+)", "What about it gives you a @0?"]], 1),
+    # K
+    "know": ([["you do not know", "What makes it hard for you to know?"]],0),
     # L
     "like": ([[r"((?:\w+\s)*)not like ((?:\w+\s*)*)", "Why don't you like @1?"],
               [r"((?:\w+\s)*)like ((?:\w+\s*)*)", "Why do you like @1?"]], 2),
@@ -31,6 +34,8 @@ keywords = {
     "nothing": ([[r"((?:\w+\s)*)nothing ((?:\w+\s)*)", "When you say that, what are you thinking of in particular?"]], 1),
     # O
     "one": ([[r"((?:\w+\s)*)no one ((?:\w+\s)*)", "When you say that, who are you thinking of in particular?"]], 1),
+    # P
+    "power": ([[r"((?:\w+\s)*)power ((?:\w+\s)*)", ""]],0),
     # S
     "stop": ([[r"stop", "If you are looking to end the program, type end"]], 1),
     # T
@@ -38,7 +43,7 @@ keywords = {
                 r"((?:\w+\s)*)thanks", "Of course!"], 1),
     # Y
     "you": ([[r"((?:\w+\s)*)you are ((?:\w+\s)*\w+)", "Why do you think you are @1?"]], 1),
-    
+    "your": ([[r"your ((?:\w+\s)*)are like ((?:\w+\s)*\w+)", "How are your @0like @1?"]], 1)
 }
 
 # A priority queue that keeps track of all identified and unused keywords with words of higher rank going first
@@ -110,11 +115,15 @@ def clean_input(user_input: str) -> str:
     user_input = user_input.replace("'bout", "about")
     user_input = user_input.replace("'cause", "because")
     # swap i and you for easier processing later
-    user_input = user_input.replace(" you ", " _i ")         # placeholders for i and i am
+    user_input = user_input.replace(" you ", " _i ")         # placeholders for i, i am and my
     user_input = user_input.replace(" you are ", " _i _am ")
-    user_input = user_input.replace(" i am ", " you are ") # replace i and i am with you and you are
+    user_input = user_input.replace(" your ", " _my ")
+    user_input = user_input.replace(" i am ", " you are ") # replace i, i am and my with you,  you are and your
     user_input = user_input.replace(" i ", " you ")
-    user_input = user_input.replace(" _i ", " i ")          # bring back i and i am
+    user_input = user_input.replace(" my ", " your ")
+    user_input = user_input.replace(" _i ", " i ")          # bring back i, i am and my
+    user_input = user_input.replace(" _i _am ", " i am ")
+    user_input = user_input.replace(" _my ", " my ")
 
     # other important word transformations
     user_input = user_input.replace("'zebras", "zebra")

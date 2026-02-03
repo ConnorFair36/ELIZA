@@ -89,9 +89,9 @@ def validate_input(user_input: str) -> bool:
 def clean_input(user_input: str) -> str:
     """Cleans the user input text for easier processing."""
     user_input = user_input.lower()
-    # clean up punctuation
     # remove punctuation
     user_input = re.sub(r"[.,?!-]", "", user_input)
+    # clean up punctuation
     user_input = user_input.replace("’", "'")
 
     # expand all contracted words
@@ -109,7 +109,7 @@ def clean_input(user_input: str) -> str:
     user_input = user_input.replace("wanna", "want to")
     user_input = user_input.replace("'bout", "about")
     user_input = user_input.replace("'cause", "because")
-    # swap  i and you for easier processing later
+    # swap i and you for easier processing later
     user_input = user_input.replace(" you ", " _i ")         # placeholders for i and i am
     user_input = user_input.replace(" you are ", " _i _am ")
     user_input = user_input.replace(" i am ", " you are ") # replace i and i am with you and you are
@@ -175,14 +175,17 @@ def main():
     quickstart_input = get_username()
     # main ELIZA loop
     while True:
+        # if the user included a response with their name, run it
         if quickstart_input != "":
             user_input = quickstart_input
             quickstart_input = ""
         else: 
             user_input = input()
+        # ensure the input follows the 3 rules
         if not validate_input(user_input):
             print("Please give only a single sentence responses")
             continue
+        # clean and prepare the input for processing
         user_input = clean_input(user_input)
         # end the program if user gives "end" as input
         if user_input == "end":

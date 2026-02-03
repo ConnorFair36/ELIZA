@@ -14,5 +14,16 @@ To run this program, you must have python installed on your device, then run thi
 
 `python eliza.py`
 
-# References
-
+# Reference
+```bibtex
+@article{weizenbaum1966eliza,
+  title={ELIZA—a computer program for the study of natural language communication between man and machine},
+  author={Weizenbaum, Joseph},
+  journal={Communications of the ACM},
+  volume={9},
+  number={1},
+  pages={36--45},
+  year={1966},
+  publisher={ACM New York, NY, USA}
+}
+```

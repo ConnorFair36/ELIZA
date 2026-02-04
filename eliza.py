@@ -51,23 +51,25 @@ found_kw = PriorityQueue()
 
 def get_username() -> str:
     """Gets and saves the username."""
-    print("Hey there, this is Eliza, your local chatbot therapist!\nWhat is your name?")
+    print("[eliza] Hey there, this is Eliza, your local chatbot therapist!\nWhat is your name?")
+    global username
     while True:
         # get the username from the user
+        print("[] ", end="")
         user_input = input()
         user_input = re.sub("[Hh]ey |[Hh]i |[Hh]ello |[Hh]ey, |[Hh]i, |[Hh]ello, ", "", user_input)
         user_input = re.sub("[Mm]y name is ", "", user_input)
         if re.match("[A-Z][a-z]*", user_input):
             username = re.match(r"(?:\w+)", user_input).group(0)
             break
-        print("Please enter your name using only alphabetical characters")
+        print("[eliza] Could you try again? I didn't get that")
     # if the user gave an immediate response, extract it and send it off to the main loop.
     user_input = re.sub(username, "", user_input)
     user_input =  re.sub(r"[,.?!]", "", user_input)
     if user_input == "":
-        print(f"Thanks {username}!\nHow are you today?")
+        print(f"[eliza] Thanks {username}!\nHow are you today?")
     else:
-        print(f"Hello there {username}!")
+        print(f"[eliza] Hello there {username}!")
     return user_input.strip()
 
 def validate_input(user_input: str) -> bool:
@@ -189,10 +191,11 @@ def main():
             user_input = quickstart_input
             quickstart_input = ""
         else: 
+            print(f"[{username}] ", end="")
             user_input = input()
         # ensure the input follows the 3 rules
         if not validate_input(user_input):
-            print("Please give only a single sentence responses")
+            print("[eliza] I don't understand, could you try again?")
             continue
         # clean and prepare the input for processing
         user_input = clean_input(user_input)
@@ -205,7 +208,7 @@ def main():
         update_pq(user_kw)
         # generate a response to the user's input
         #print(found_kw.queue)
-        print(generate_response(user_input))
+        print("[eliza] " + generate_response(user_input))
         # clear the queue for the next input
         clear_queue()
 

@@ -1,3 +1,6 @@
+# Author: Connor Fair
+# Class:  CMSC 437 Intro to Natural Language Processing
+
 import re
 from queue import PriorityQueue
 
@@ -11,38 +14,47 @@ username = ""
 # - patterns are choosen by the order they are put in, not by best-fit
 keywords = {
     # A
+    # asks why the user thinks thinks things are the way they are
     "are": ([[r"the ((?:\w+\s)*)are ((?:\w+\s)*\w+)", "Why do you think the @0are @1?"]], 2),
     # B
+    # Identifies the user taling or thinking about their boss and moves the conversation in that direction
     "boss": ([[r"((?:\w+\s)*)(thinking|talking) about my boss ((?:\w+\s)*\w+)", "Tell me about your boss"]], 0),
     # E
+    # 2 examples I liked from the paper. It narrows the general question into something specific
     "everyone": ([[r"((?:\w+\s)*)everyone ((?:\w+\s)*)", "When you say that, who are you thinking of in particular?"]], 1),
     "everything": ([[r"((?:\w+\s)*)everything ((?:\w+\s)*)", "When you say that, what are you thinking of in particular?"]], 1),
     # F
+    # asks why the user feels a particular feeling
     "feeling": ([[r"((?:\w+\s)*)feeling ((?:\w+\s)*\w+)", "Why are you feeling @1?"]], 1),
+    # finds the word family and tries to open a conversation about them
     "family": ([[r"((?:\w+\s)*)family ((?:\w+\s)*\w+)", "Tell me about your family"]], 0),
+    # converts phrases where the user says "I am falling short" and converts them into a question asking why
     "falling": ([[r"((?:\w+\s)*)you are falling short ((?:\w+\s)*\w+)", "How are you falling short?"]], 0),
     # I
+    # captures "You think you are ..." and asks why the user thinks ... about the program
     "i": ([[r"i think i am ((?:\w+\s)*\w+)", "Why do you think I'm @0?"]], 1),
+    # asks the user why something gives them some feeling
     "it": ([[r"it gives me a ((?:\w+\s)*\w+)", "What about it gives you a @0?"]], 1),
     # K
+    # converts "I don't know" into a question that tries to understand why the user doesn't know
     "know": ([["you do not know", "What makes it hard for you to know?"]],0),
     # L
+    # converts statements of liking or disliking something into questions asking why
     "like": ([[r"((?:\w+\s)*)not like ((?:\w+\s*)*)", "Why don't you like @1?"],
-              [r"((?:\w+\s)*)like ((?:\w+\s*)*)", "Why do you like @1?"]], 2),
-    "zebra": ([[r"((?:\w+\s)*)zebra", "ZEBRAS?!?! I LOVE ZEBRAS!!!! HAHAHAHAHA\n\n\nSorry about that...\nPlease continue"]], -1),
+              [r"((?:\w+\s)*)like ((?:\w+\s*)*)", "Why do you like @1?"]], 1),
     # N
+    # one of the examples I liked from the paper. It narrows the general question into something specific
     "nothing": ([[r"((?:\w+\s)*)nothing ((?:\w+\s)*)", "When you say that, what are you thinking of in particular?"]], 1),
     # O
+    # one of the examples I liked from the paper. It narrows the general question into something specific
     "one": ([[r"((?:\w+\s)*)no one ((?:\w+\s)*)", "When you say that, who are you thinking of in particular?"]], 1),
-    # P
-    "power": ([[r"((?:\w+\s)*)power ((?:\w+\s)*)", ""]],0),
     # S
-    "stop": ([[r"stop", "If you are looking to end the program, type end"]], 1),
-    # T
-    "thanks": ([[r"no thanks", "Why not?"],
-                r"((?:\w+\s)*)thanks", "Of course!"], 1),
+    # helps point the user in the right direction to ending the program
+    "stop": ([[r"stop", "If you are looking to end the program, type end"]], 2),
     # Y
+    # converts "... I am ...." into "why are you ...."
     "you": ([[r"((?:\w+\s)*)you are ((?:\w+\s)*\w+)", "Why do you think you are @1?"]], 1),
+    # converts "My ... are like ...." into "how are your ... like ...."
     "your": ([[r"your ((?:\w+\s)*)are like ((?:\w+\s)*\w+)", "How are your @0like @1?"]], 1)
 }
 
@@ -128,7 +140,6 @@ def clean_input(user_input: str) -> str:
     user_input = user_input.replace(" _my ", " my ")
 
     # other important word transformations
-    user_input = user_input.replace("'zebras", "zebra")
     return user_input.strip()
 
 def extract_keywords(user_input: str) -> list[str]:

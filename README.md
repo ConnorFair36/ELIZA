@@ -14,6 +14,10 @@ To run this program, you must have python installed on your device, then run thi
 
 `python eliza.py`
 
+## Example
+
+![example of it running](./Screenshot%202026-02-04%20at%203.46.43 PM.png)
+
 # Reference
 ```bibtex
 @article{weizenbaum1966eliza,
